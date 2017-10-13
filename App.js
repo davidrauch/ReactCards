@@ -255,7 +255,7 @@ class QuestionView extends Component {
       });
 
       if(this.state.sourceLanguage == 'ru') {
-        //Tts.speak(this.state.currentWord.ru);
+        Tts.speak(this.state.currentWord.ru);
       }
     });
   }
