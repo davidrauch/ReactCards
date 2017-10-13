@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Button from 'apsl-react-native-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import TabBar from './TabBar.js';
 import DB from './DB.js';
 import Tts from 'react-native-tts';
 
@@ -254,7 +255,7 @@ class QuestionView extends Component {
       });
 
       if(this.state.sourceLanguage == 'ru') {
-        Tts.speak(this.state.currentWord.ru);
+        //Tts.speak(this.state.currentWord.ru);
       }
     });
   }
@@ -264,17 +265,24 @@ class QuestionView extends Component {
 export default class App extends Component<{}> {
   render() {
     return (
-      <QuestionView />
+      <View style={styles.rootView}>
+        <QuestionView />
+        <TabBar />
+      </View>
     );
   }
 }
 
 
 const styles = StyleSheet.create({
+  rootView: {
+    flex: 1,
+    backgroundColor: 'black',
+    paddingTop: 20,
+  },
   markAddButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
     borderColor: 'rgb(60, 60, 60)',
     borderBottomWidth: 1,
     backgroundColor: 'rgb(60, 60, 60)',
