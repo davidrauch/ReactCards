@@ -122,8 +122,8 @@ class QuestionView extends Component {
             >
               <Icon
                 name='times-circle'
-                color='#ddd'
-                size={30}
+                color='#da4453'
+                size={40}
                 iconStyle={{marginRight: 0}}
               />
             </Button>
@@ -148,8 +148,8 @@ class QuestionView extends Component {
             >
               <Icon
                 name='check-circle'
-                color='#ddd'
-                size={30}
+                color='#37bc9b'
+                size={40}
                 iconStyle={{marginRight: 0}}
               />
             </Button>
