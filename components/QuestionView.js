@@ -3,13 +3,12 @@ import {
   StyleSheet,
   Text,
   View,
-  StatusBar,
-  TextInput
+  TextInput,
 } from 'react-native';
 import Button from 'apsl-react-native-button';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DB from '../DB.js';
-import Tts from 'react-native-tts';
+import CardView from './CardView.js';
 
 
 export default class QuestionView extends Component {
@@ -31,13 +30,6 @@ export default class QuestionView extends Component {
 
     // Load first word
     this.nextWord();
-
-    // Prepare language
-    Tts.setDefaultLanguage('ru-RU');
-    Tts.setDucking(true);
-    Tts.addEventListener('tts-start', (event) => console.log("TTS: Start", event));
-    Tts.addEventListener('tts-finish', (event) => console.log("TTS: Finish", event));
-    Tts.addEventListener('tts-cancel', (event) => console.log("TTS: Cancel", event));
   }
 
   render() {
@@ -92,19 +84,8 @@ export default class QuestionView extends Component {
           {textInput}
 
           <View style={styles.cardContainer}>
-            <View style={[styles.card, styles.questionCard]}>
-              <Text style={styles.cardText}>
-                {this.state.currentWord[this.state.sourceLanguage]}
-              </Text>
-              <Text style={styles.cardComment}>
-                {this.getCommentForWord(this.state.currentWord)}
-              </Text>
-            </View>
-            <View style={styles.card}>
-              <Text style={[styles.cardText, {color: this.state.answerShown ? '#eee' : 'rgb(30, 30, 30)'}]}>
-                {this.state.currentWord[this.state.targetLanguage]}
-              </Text>
-            </View>
+            <CardView ref='questionView' word={this.state.currentWord} language={this.state.sourceLanguage} hasBorder={true} />
+            <CardView ref='answerView' word={this.state.currentWord} language={this.state.targetLanguage} />
           </View>
 
           <View style={styles.bottomButtonContainer}>
@@ -153,42 +134,18 @@ export default class QuestionView extends Component {
       );
     } else {
       return (
-        <View style={styles.questionContainer}>
-          <StatusBar
-             backgroundColor="black"
-             barStyle="light-content"
-          />
-        </View>
+        <View style={styles.questionContainer} />
       );
     }
   }
 
-  getCommentForWord = (word) => {
-    comment = []
-    if(word.type) {
-      comment.push(word.type);
-    }
-    if(word.gender) {
-      genders = ['male', 'female', 'neuter'];
-      comment.push(genders[word.gender-1]);
-    }
-    if(word.aspect) {
-      aspects = ['imperfective', 'perfective'];
-      comment.push(aspects[word.aspect-1]);
-    }
-    return comment.join(", ");
-  }
-
   onShowAnswer = () => {
     // Show the answer
+    this.refs.answerView.flip();
+
     this.setState(previousState => {
       return { answerShown: true };
     });
-
-    // Speak the answer if it is Russian
-    if(this.state.targetLanguage == 'ru') {
-      Tts.speak(this.state.currentWord.ru);
-    }
   }
 
   onMarkWord = () => {
@@ -229,6 +186,13 @@ export default class QuestionView extends Component {
   }
 
   nextWord = () => {
+    // Turn both cards back over
+    if(this.refs.questionView && this.refs.answerView) {
+      this.refs.questionView.flip();
+      this.refs.answerView.flip();
+    }
+
+    // Get the new word
     this.db.getNextWord((word) => {
       let source_language = 'ru';
       let target_language = 'en';
@@ -238,18 +202,16 @@ export default class QuestionView extends Component {
         target_language = 'ru';
       }
 
-      this.setState(previousState => {
+      this.setState((previousState) => {
         return {
           currentWord: word,
           answerShown: false,
           sourceLanguage: source_language,
           targetLanguage: target_language,
         };
+      }, () => {
+        this.refs.questionView.flip();
       });
-
-      if(this.state.sourceLanguage == 'ru') {
-        //Tts.speak(this.state.currentWord.ru);
-      }
     });
   }
 }
@@ -297,25 +259,6 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     backgroundColor: 'rgb(30, 30, 30)',
-  },
-  card: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  questionCard : {
-    borderColor: 'black',
-    borderBottomWidth: 1,
-  },
-  cardText: {
-    fontSize: 40,
-    textAlign: 'center',
-    color: '#eee'
-  },
-  cardComment: {
-    fontSize: 20,
-    textAlign: 'center',
-    color: '#bbb'
   },
   bottomButtonContainer: {
     flexDirection: 'row',
