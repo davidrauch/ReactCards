@@ -18,6 +18,13 @@ export default class App extends Component<{}> {
     // Set up speech output
     Tts.setDefaultLanguage('ru-RU');
     Tts.setDucking(true);
+    Tts.voices().then((voices) => {
+      enhancedVoice = voices.find((voice) => { return voice.id.indexOf('premium') !== -1 });
+      if(enhancedVoice) {
+        Tts.setDefaultVoice(enhancedVoice);
+      }
+    });
+
     Tts.addEventListener('tts-start', (event) => console.log("TTS: Start", event));
     Tts.addEventListener('tts-finish', (event) => console.log("TTS: Finish", event));
     Tts.addEventListener('tts-cancel', (event) => console.log("TTS: Cancel", event));
