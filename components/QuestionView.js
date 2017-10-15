@@ -19,130 +19,149 @@ export default class QuestionView extends Component {
     sourceLanguage: 'ru',
     targetLanguage: 'en',
     textInputVisible: false,
+    learnList: [],
   }
 
   componentWillMount() {
     // Open database connection
     this.db = new DB();
 
-    // Load first word
-    this.nextWord();
+    if(this.props.mode === 'practice') {
+      // Load first word
+      this.nextWord();
+    }
   }
 
   render() {
-    if(this.state.currentWord) {
+    let textInput = null;
+    if(this.state.textInputVisible) {
+      textInput =
+        <View style={styles.textInputContainer}>
+          <TextInput
+            style={styles.textInput}
+            autoFocus={true}
+            autoCorrect={false}
+            autoCapitalize={'none'}
+            onSubmitEditing={this.onTextSubmit}
+          />
+        </View>
+    }
 
-      let textInput = null;
-      if(this.state.textInputVisible) {
-        textInput =
-          <View style={styles.textInputContainer}>
-            <TextInput
-              style={styles.textInput}
-              autoFocus={true}
-              autoCorrect={false}
-              autoCapitalize={'none'}
-              onSubmitEditing={this.onTextSubmit}
+    return (
+      <View style={styles.questionContainer}>
+        <View style={styles.markAddButtonContainer}>
+
+          <Button
+            style={styles.topButton}
+            onPress={this.onMarkWord}
+          >
+            <Icon
+              name='exclamation-triangle'
+              color={this.state.currentWord && this.state.currentWord.marked ? 'yellow' : "#ddd"}
+              size={30}
+              iconStyle={{marginRight: 0}}
             />
-          </View>
-      }
+          </Button>
 
+          <Text style={styles.topText}>{this.props.mode.charAt(0).toUpperCase() + this.props.mode.slice(1)}</Text>
+
+          <Button
+            style={styles.topButton}
+            onPress={this.onAddWord}
+          >
+            <Icon
+              name='plus-circle'
+              color='#ddd'
+              size={30}
+              iconStyle={{marginRight: 0}}
+            />
+          </Button>
+
+        </View>
+
+        {textInput}
+
+        {this._getCardsContainer()}
+
+        <View style={styles.bottomButtonContainer}>
+
+          <Button
+            style={styles.bottomButton}
+            isDisabled={!this.state.answerShown}
+            onPress={this.onWrongAnswer}
+          >
+            <Icon
+              name='times-circle'
+              color='#da4453'
+              size={40}
+              iconStyle={{marginRight: 0}}
+            />
+          </Button>
+
+          <Button
+            style={styles.bottomButton}
+            isDisabled={this.state.answerShown}
+            onPress={this.onCenterButton}
+          >
+            <Icon
+              name={this.props.mode === 'practice' || this.state.learnList.length > 0 ? 'info-circle' : 'play-circle'}
+              color='#ddd'
+              size={50}
+              iconStyle={{marginRight: 0}}
+            />
+          </Button>
+
+          <Button
+            style={styles.bottomButton}
+            isDisabled={!this.state.answerShown}
+            onPress={this.onCorrectAnswer}
+          >
+            <Icon
+              name='check-circle'
+              color='#37bc9b'
+              size={40}
+              iconStyle={{marginRight: 0}}
+            />
+          </Button>
+        </View>
+
+      </View>
+    );
+  }
+
+  _getCardsContainer() {
+    if(this.state.currentWord) {
       return (
-        <View style={styles.questionContainer}>
-          <View style={styles.markAddButtonContainer}>
-
-            <Button
-              style={styles.topButton}
-              onPress={this.onMarkWord}
-            >
-              <Icon
-                name='exclamation-triangle'
-                color={this.state.currentWord.marked ? 'yellow' : "#ddd"}
-                size={30}
-                iconStyle={{marginRight: 0}}
-              />
-            </Button>
-
-            <Text style={styles.topText}>{this.props.mode}</Text>
-
-            <Button
-              style={styles.topButton}
-              onPress={this.onAddWord}
-            >
-              <Icon
-                name='plus-circle'
-                color='#ddd'
-                size={30}
-                iconStyle={{marginRight: 0}}
-              />
-            </Button>
-
-          </View>
-
-          {textInput}
-
-          <View style={styles.cardContainer}>
-            <CardView ref='questionView' word={this.state.currentWord} language={this.state.sourceLanguage} hasBorder={true} />
-            <CardView ref='answerView' word={this.state.currentWord} language={this.state.targetLanguage} />
-          </View>
-
-          <View style={styles.bottomButtonContainer}>
-
-            <Button
-              style={styles.bottomButton}
-              isDisabled={!this.state.answerShown}
-              onPress={this.onWrongAnswer}
-            >
-              <Icon
-                name='times-circle'
-                color='#da4453'
-                size={40}
-                iconStyle={{marginRight: 0}}
-              />
-            </Button>
-
-            <Button
-              style={styles.bottomButton}
-              isDisabled={this.state.answerShown}
-              onPress={this.onShowAnswer}
-            >
-              <Icon
-                name='info-circle'
-                color='#ddd'
-                size={50}
-                iconStyle={{marginRight: 0}}
-              />
-            </Button>
-
-            <Button
-              style={styles.bottomButton}
-              isDisabled={!this.state.answerShown}
-              onPress={this.onCorrectAnswer}
-            >
-              <Icon
-                name='check-circle'
-                color='#37bc9b'
-                size={40}
-                iconStyle={{marginRight: 0}}
-              />
-            </Button>
-          </View>
-
+        <View style={styles.cardContainer}>
+          <CardView ref='questionView' word={this.state.currentWord} language={this.state.sourceLanguage} hasBorder={true} />
+          <CardView ref='answerView' word={this.state.currentWord} language={this.state.targetLanguage} />
         </View>
       );
     } else {
       return (
-        <View style={[styles.questionContainer, {backgroundColor: 'black'}]} />
-      );
+        <View style={styles.cardContainer}>
+          <Text style={{color: '#ddd',fontSize: 20}}>Press play to start learning!</Text>
+        </View>
+      )
     }
   }
 
-  onShowAnswer = () => {
-    // Show the answer
-    this.refs.answerView.flip();
+  onCenterButton = () => {
+    if(this.props.mode === 'practice' || this.state.learnList.length > 0) {
+      // Show the answer
+      this.refs.answerView.flip();
 
-    this.setState(previousState => {
-      return { answerShown: true };
-    });
+      this.setState(previousState => {
+        return { answerShown: true };
+      });
+    } else {
+      if(this.state.learnList.length === 0) {
+        // Load new words to learn
+        this.db.getLearnWords((words) => {
+          this.setState({ learnList: words }, ()=>{ this.nextWord() });
+        })
+      }
+    }
   }
 
   onMarkWord = () => {
@@ -178,7 +197,25 @@ export default class QuestionView extends Component {
 
   onCorrectAnswer = () => {
     this.db.registerWordCorrect(this.state.currentWord, () => {
-      this.nextWord();
+      if(this.props.mode === 'learn' && this.state.currentWord.level >= 3) {
+        removeIndex = this.state.learnList.findIndex((word) => {
+          return word.id == this.state.currentWord.id;
+        });
+        this.state.learnList.splice(removeIndex, 1);
+
+        this.forceUpdate(() => {
+          if (this.state.learnList.length > 0) {
+            this.nextWord();
+          } else {
+            this.setState({
+              currentWord: null,
+              answerShown: false,
+            });
+          }
+        });
+      } else {
+        this.nextWord();
+      }
     });
   }
 
@@ -189,29 +226,34 @@ export default class QuestionView extends Component {
       this.refs.answerView.flip();
     }
 
-    //if(this.props.mode == 'practice') {
-      // Get the new word
-      this.db.getPracticeWord((word) => {
-        let source_language = 'ru';
-        let target_language = 'en';
+    let applyNextWord = (word) => {
+      let source_language = 'ru';
+      let target_language = 'en';
 
-        if(Math.random() > 0.5) {
-          source_language = 'en';
-          target_language = 'ru';
-        }
+      if(Math.random() > 0.5) {
+        source_language = 'en';
+        target_language = 'ru';
+      }
 
-        this.setState((previousState) => {
-          return {
-            currentWord: word,
-            answerShown: false,
-            sourceLanguage: source_language,
-            targetLanguage: target_language,
-          };
-        }, () => {
-          this.refs.questionView.flip();
-        });
+      this.setState((previousState) => {
+        return {
+          currentWord: word,
+          answerShown: false,
+          sourceLanguage: source_language,
+          targetLanguage: target_language,
+        };
+      }, () => {
+        this.refs.questionView.flip();
       });
-    //}
+    };
+
+    if(this.props.mode == 'practice') {
+      // Get the new word
+      this.db.getPracticeWord(applyNextWord);
+    } else {
+      nextWord = this.state.learnList[Math.floor(Math.random() * this.state.learnList.length)];
+      applyNextWord(nextWord);
+    }
   }
 }
 
@@ -258,6 +300,10 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     backgroundColor: 'rgb(30, 30, 30)',
+    display: 'flex',           /* establish flex container */
+    flexDirection: 'column',  /* make main axis vertical */
+    justifyContent: 'center', /* center items vertically, in this case */
+    alignItems: 'center',
   },
   bottomButtonContainer: {
     flexDirection: 'row',

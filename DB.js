@@ -51,6 +51,12 @@ export default class DB {
     });
   }
 
+  getLearnWords = (callback) => {
+    this._runQuery(`SELECT id, ru, en, type, gender, aspect, marked, level, repeats_in_level, last_repeated FROM words WHERE level<3 AND enabled=1 ORDER BY RANDOM() LIMIT 5`, (results) => {
+      callback(results.rows.raw());
+    });
+  }
+
   _registerWordRepeat = (word, callback) => {
     this._runQuery(`UPDATE words SET level=${word.level}, repeats_in_level=${word.repeats_in_level}, last_repeated=strftime('%s', 'now') WHERE id=${word.id}`, callback)
   }
