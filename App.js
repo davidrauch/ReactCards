@@ -14,7 +14,7 @@ export default class App extends Component<{}> {
 
   constructor(props) {
     super(props);
-    
+
     // Set up speech output
     Tts.setDefaultLanguage('ru-RU');
     Tts.setDucking(true);
@@ -27,8 +27,12 @@ export default class App extends Component<{}> {
     return (
       <View style={styles.rootView}>
         <StatusBar backgroundColor="black" barStyle="light-content" />
-        <QuestionView />
-        <TabBar />
+        <TabBar>
+          <QuestionView key='practice' mode='practice' />
+          <QuestionView key='learn' mode='learn' />
+          <View style={{flex:1,backgroundColor:'green'}} />
+          <View style={{flex:1,backgroundColor:'blue'}} />
+        </TabBar>
       </View>
     );
   }

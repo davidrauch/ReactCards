@@ -13,18 +13,15 @@ import CardView from './CardView.js';
 
 export default class QuestionView extends Component {
 
-  constructor(props) {
-    super(props);
+  state= {
+    currentWord: null,
+    answerShown: false,
+    sourceLanguage: 'ru',
+    targetLanguage: 'en',
+    textInputVisible: false,
+  }
 
-    // Set default state
-    this.state = {
-      currentWord: null,
-      answerShown: false,
-      sourceLanguage: 'ru',
-      targetLanguage: 'en',
-      textInputVisible: false,
-    };
-
+  componentWillMount() {
     // Open database connection
     this.db = new DB();
 
@@ -65,7 +62,7 @@ export default class QuestionView extends Component {
               />
             </Button>
 
-            <Text style={styles.topText}>Cards</Text>
+            <Text style={styles.topText}>{this.props.mode}</Text>
 
             <Button
               style={styles.topButton}
@@ -134,7 +131,7 @@ export default class QuestionView extends Component {
       );
     } else {
       return (
-        <View style={styles.questionContainer} />
+        <View style={[styles.questionContainer, {backgroundColor: 'black'}]} />
       );
     }
   }
@@ -192,27 +189,29 @@ export default class QuestionView extends Component {
       this.refs.answerView.flip();
     }
 
-    // Get the new word
-    this.db.getNextWord((word) => {
-      let source_language = 'ru';
-      let target_language = 'en';
+    //if(this.props.mode == 'practice') {
+      // Get the new word
+      this.db.getPracticeWord((word) => {
+        let source_language = 'ru';
+        let target_language = 'en';
 
-      if(Math.random() > 0.5) {
-        source_language = 'en';
-        target_language = 'ru';
-      }
+        if(Math.random() > 0.5) {
+          source_language = 'en';
+          target_language = 'ru';
+        }
 
-      this.setState((previousState) => {
-        return {
-          currentWord: word,
-          answerShown: false,
-          sourceLanguage: source_language,
-          targetLanguage: target_language,
-        };
-      }, () => {
-        this.refs.questionView.flip();
+        this.setState((previousState) => {
+          return {
+            currentWord: word,
+            answerShown: false,
+            sourceLanguage: source_language,
+            targetLanguage: target_language,
+          };
+        }, () => {
+          this.refs.questionView.flip();
+        });
       });
-    });
+    //}
   }
 }
 

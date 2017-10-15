@@ -26,7 +26,7 @@ export default class DB {
     });
   }
 
-  getNextWord = (callback) => {
+  getPracticeWord = (callback) => {
     let random_level = Math.random() * 16;
     let level = 1;
     if (random_level < 10) {
@@ -46,7 +46,7 @@ export default class DB {
         callback(results.rows.item(0));
       } else {
         console.log('DB: No row selected for query');
-        this.getNextWord(callback);
+        this.getPracticeWord(callback);
       }
     });
   }
