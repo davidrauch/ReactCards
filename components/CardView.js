@@ -73,6 +73,7 @@ export default class CardView extends Component {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
