@@ -21,7 +21,7 @@ export default class App extends Component<{}> {
     Tts.voices().then((voices) => {
       enhancedVoice = voices.find((voice) => { return voice.id.indexOf('premium') !== -1 });
       if(enhancedVoice) {
-        Tts.setDefaultVoice(enhancedVoice);
+        //Tts.setDefaultVoice(enhancedVoice);
       }
     });
 
